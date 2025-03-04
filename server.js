@@ -10,7 +10,8 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.static('public'));
 
-const players = {};
+const players = [];
+const bots = [];
 const levels = {
   'FE лабиринт': 1,
   'BE порядок': 2,
@@ -20,34 +21,35 @@ const levels = {
 
 io.on('connection', (socket) => {
   const playerName = socket.handshake.query.name;
-  if (!playerName || Object.keys(players).length >= 6) {
+  if (!playerName || players.length >= 6) {
     socket.disconnect(true);
     return;
   }
 
-  players[playerName] = { socket, level: null };
+  players.push({ name: playerName, level: null, state: null })
 
-  io.emit('playerConnected', Object.keys(players));
+  io.emit('playerConnected', players.map(({name}) => name));
 
-  if (Object.keys(players).length === 6) {
+  if (players.length === 6) {
     io.emit('allPlayersConnected');
   }
 
   socket.on('levelSelected', (levelName) => {
     if (!levels[levelName]) return;
 
-    players[playerName].level = levels[levelName];
+    players.find((({ name }) => name === playerName)).level = levels[levelName];
     io.emit('levelSelected', levelName);
 
-    if (Object.values(players).every(player => player.level !== null) && Object.values(players).every(({level}) => level === Object.values(players)[0].level)) {
-      const selectedLevel = Object.values(players)[0].level;
+    if (players.every(player => player.level !== null) && players.every(({level}) => level === players[0].level)) {
+      const selectedLevel = players[0].level;
       io.emit('startLevel', selectedLevel);
     }
   });
 
   socket.on('disconnect', () => {
-    delete players[playerName];
-    if (Object.keys(players).length === 0) {
+    players.splice(players.findIndex(({name}) => name === playerName), 1)
+
+    if (players.length === 0) {
       io.emit('resetGame');
     }
   });
