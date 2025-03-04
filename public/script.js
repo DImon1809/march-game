@@ -11,7 +11,7 @@ const screens = {
 };
 
 const enemyFaces = {
-  enemy: 'images/players/enemy.png'
+  enemy: 'images/enemies/enemy.png'
 }
 
 const playerFaces = {
@@ -115,126 +115,200 @@ function startLevel4() {
   canvas.width = 800;
   canvas.height = 800;
 
-  const playerSize = 50;
+// Определяем игроков и ботов
   const players = [];
-  const enemies = [];
+  const bots = [];
 
-  class Player {
-    constructor(x, y) {
-      this.x = x;
-      this.y = y;
-      this.size = playerSize;
-      this.color = 'blue';
-    }
+// Функция для создания игрока
+  function createPlayer() {
+    const img = new Image();
+    img.src = playerFace;
 
-    draw() {
-      ctx.fillStyle = this.color;
-      ctx.fillRect(this.x, this.y, this.size, this.size);
-    }
+    return {
+      x: Math.random() * (canvas.width - 50),
+      y: Math.random() * (canvas.height - 50),
+      size: 50,
+      img: img,
+      speed: 2,
+      dx: 0,
+      dy: 0
+    };
+  }
 
-    move(dx, dy) {
-      this.x += dx;
-      this.y += dy;
-      this.checkBounds();
-    }
+// Функция для создания бота с тремя жизнями
+  function createBot() {
+    const img = new Image();
+    img.src = enemyFaces.enemy;
 
-    checkBounds() {
-      if (this.x < 0) this.x = 0;
-      if (this.x > canvas.width - this.size) this.x = canvas.width - this.size;
-      if (this.y < 0) this.y = 0;
-      if (this.y > canvas.height - this.size) this.y = canvas.height - this.size;
+    return {
+      x: Math.random() * (canvas.width - 50),
+      y: Math.random() * (canvas.height - 50),
+      size: 50,
+      img: img,
+      speed: 1,
+      dx: Math.random() > 0.5 ? 1 : -1,
+      dy: Math.random() > 0.5 ? 1 : -1,
+      lives: 3
+    };
+  }
+
+// Создаем игроков и ботов
+  for (let i = 0; i < 6; i++) {
+    if (i === 0) {
+      players.push(createPlayer());
+    } else {
+      players.push(createPlayer());
     }
   }
 
-  class Enemy {
-    constructor(x, y, color) {
-      this.x = x;
-      this.y = y;
-      this.size = playerSize;
-      this.color = color;
-      this.dx = Math.random() * 2 - 1;
-      this.dy = Math.random() * 2 - 1;
-    }
-
-    draw() {
-      ctx.fillStyle = this.color;
-      ctx.fillRect(this.x, this.y, this.size, this.size);
-    }
-
-    move() {
-      this.x += this.dx;
-      this.y += this.dy;
-      this.checkBounds();
-    }
-
-    checkBounds() {
-      if (this.x < 0) this.dx = Math.abs(this.dx);
-      if (this.x > canvas.width - this.size) this.dx = -Math.abs(this.dx);
-      if (this.y < 0) this.dy = Math.abs(this.dy);
-      if (this.y > canvas.height - this.size) this.dy = -Math.abs(this.dy);
-    }
+  for (let i = 0; i < 2; i++) {
+    bots.push(createBot());
   }
 
-  function createPlayers() {
-    for (let i = 0; i < 6; i++) {
-      players.push(new Player(Math.random() * (canvas.width - playerSize), Math.random() * (canvas.height - playerSize)));
-    }
+// Функция для проверки столкновения
+  function checkCollision(rect1, rect2) {
+    return rect1.x < rect2.x + rect2.size &&
+      rect1.x + rect1.size > rect2.x &&
+      rect1.y < rect2.y + rect2.size &&
+      rect1.y + rect1.size > rect2.y;
   }
 
-  function createEnemies() {
-    enemies.push(new Enemy(Math.random() * canvas.width, Math.random() * canvas.height, 'red'));
-    enemies.push(new Enemy(Math.random() * canvas.width, Math.random() * canvas.height, 'green'));
-  }
+// Функция для расчета направления убегания от ближайшего игрока
+  function fleeFromClosestPlayer(bot) {
+    let closestPlayer = null;
+    let closestDistance = Infinity;
 
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    players.forEach(player => player.draw());
-    enemies.forEach(enemy => enemy.draw());
-  }
-
-  function update() {
     players.forEach(player => {
-      if (player.color === 'blue') {
-        player.move(0, 1); // Move up
-      } else if (player.color === 'yellow') {
-        player.move(0, -1); // Move down
-      } else if (player.color === 'green') {
-        player.move(1, 0); // Move right
-      } else if (player.color === 'purple') {
-        player.move(-1, 0); // Move left
+      const distance = Math.sqrt((bot.x - player.x) ** 2 + (bot.y - player.y) ** 2);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestPlayer = player;
       }
     });
 
-    enemies.forEach(enemy => {
-      enemy.move();
+    if (closestPlayer) {
+      const angle = Math.atan2(closestPlayer.y - bot.y, closestPlayer.x - bot.x);
+      bot.dx = -Math.cos(angle);
+      bot.dy = -Math.sin(angle);
+    }
+  }
+
+// Функция для отрисовки игроков и ботов
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Отрисовка игроков
+    players.forEach(player => {
+      ctx.drawImage(player.img, player.x, player.y, player.size, player.size);
+    });
+
+    // Отрисовка ботов
+    bots.forEach(bot => {
+      ctx.drawImage(bot.img, bot.x, bot.y, bot.size, bot.size);
     });
   }
 
-  function checkCollisions() {
+// Функция для обновления позиции игроков и ботов
+  function update() {
+    // Обновление позиции игроков
     players.forEach(player => {
-      enemies.forEach(enemy => {
-        if (player.x < enemy.x + enemy.size &&
-          player.x + player.size > enemy.x &&
-          player.y < enemy.y + enemy.size &&
-          player.y + player.size > enemy.y) {
-          if (enemy.color === 'red') {
-            player.color = 'red';
-          } else if (enemy.color === 'green') {
-            player.color = 'green';
+      player.x += player.dx * player.speed;
+      player.y += player.dy * player.speed;
+
+      // Ограничение движением за пределы холста
+      if (player.x < 0) player.x = 0;
+      if (player.x > canvas.width - player.size) player.x = canvas.width - player.size;
+      if (player.y < 0) player.y = 0;
+      if (player.y > canvas.height - player.size) player.y = canvas.height - player.size;
+    });
+
+    // Обновление позиции ботов и убегание от игроков
+    bots.forEach(bot => {
+      fleeFromClosestPlayer(bot);
+      bot.x += bot.dx * bot.speed;
+      bot.y += bot.dy * bot.speed;
+
+      // Ограничение движением за пределы холста
+      if (bot.x < 0) {
+        bot.x = 0;
+        bot.dx = Math.abs(bot.dx);
+      }
+      if (bot.x > canvas.width - bot.size) {
+        bot.x = canvas.width - bot.size;
+        bot.dx = -Math.abs(bot.dx);
+      }
+      if (bot.y < 0) {
+        bot.y = 0;
+        bot.dy = Math.abs(bot.dy);
+      }
+      if (bot.y > canvas.height - bot.size) {
+        bot.y = canvas.height - bot.size;
+        bot.dy = -Math.abs(bot.dy);
+      }
+    });
+
+    // Проверка столкновений и исчезновение ботов
+    bots.forEach((bot, botIndex) => {
+      players.forEach(player => {
+        if (checkCollision(bot, player)) {
+          bot.lives -= 1;
+          if (bot.lives <= 0) {
+            bots.splice(botIndex, 1); // Удаляем бота из массива
+            botIndex--; // Декрементируем индекс для корректного удаления следующего бота
+          } else {
+            bot.x = Math.random() * (canvas.width - bot.size);
+            bot.y = Math.random() * (canvas.height - bot.size);
           }
         }
       });
     });
   }
 
+// Функция для обработки ввода
+  function handleInput() {
+    document.addEventListener('keydown', (event) => {
+      switch (event.key) {
+        case 'ArrowUp':
+          players[0].dy = -1;
+          break;
+        case 'ArrowDown':
+          players[0].dy = 1;
+          break;
+        case 'ArrowLeft':
+          players[0].dx = -1;
+          break;
+        case 'ArrowRight':
+          players[0].dx = 1;
+          break;
+      }
+    });
+
+    document.addEventListener('keyup', (event) => {
+      switch (event.key) {
+        case 'ArrowUp':
+        case 'ArrowDown':
+          players[0].dy = 0;
+          break;
+        case 'ArrowLeft':
+        case 'ArrowRight':
+          players[0].dx = 0;
+          break;
+      }
+    });
+  }
+
+// Основной игровой цикл
   function gameLoop() {
     draw();
     update();
-    checkCollisions();
-    requestAnimationFrame(gameLoop);
+    if (bots.length > 0) {
+      requestAnimationFrame(gameLoop);
+    } else {
+      alert('Игра пройдена!');
+    }
   }
 
-  createPlayers();
-  createEnemies();
+// Запуск игры
+  handleInput();
   gameLoop();
 }
