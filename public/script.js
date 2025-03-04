@@ -153,13 +153,7 @@ function startLevel4() {
   }
 
 // Создаем игроков и ботов
-  for (let i = 0; i < 6; i++) {
-    if (i === 0) {
-      players.push(createPlayer());
-    } else {
-      players.push(createPlayer());
-    }
-  }
+  players.push(createPlayer());
 
   for (let i = 0; i < 2; i++) {
     bots.push(createBot());
