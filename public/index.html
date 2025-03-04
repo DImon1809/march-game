@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поздравляем с праздником 8 марта!</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="waiting-room" class="screen active">
+    <h1>Переполох в Консалтинге</h1>
+    <button id="start-game" disabled>Начать игру</button>
+    <h2 id="connected-players"></h2>
+</div>
+
+<div id="level-selection" class="screen">
+    <h1>Choose your destiny</h1>
+    <div id="levels">
+        <button class="level" data-name="FE лабиринт">FE лабиринт</button>
+        <button class="level" data-name="BE порядок">BE порядок</button>
+        <button class="level" data-name="QA преграда">QA преграда</button>
+        <button class="level" data-name="SA догонялки">SA догонялки</button>
+    </div>
+    <div id="treasure-chest">
+        <input type="text" id="treasure-code" placeholder="Введите код">
+        <button id="open-treasure">Открыть сундучок</button>
+    </div>
+</div>
+
+<div id="treasure-screen" class="screen">
+    <h1>Забери свой приз</h1>
+    <div id="treasure"></div>
+</div>
+
+<div id="level-1" class="screen">
+    <canvas id="maze"></canvas>
+</div>
+
+<div id="level-2" class="screen">
+    <button id="reset-level-2">Начать заново</button>
+    <canvas id="sokoban"></canvas>
+</div>
+
+<div id="level-3" class="screen">
+    <canvas id="shooting"></canvas>
+</div>
+
+<div id="level-4" class="screen">
+    <canvas id="chase"></canvas>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

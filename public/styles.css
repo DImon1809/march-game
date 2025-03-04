@@ -1,0 +1,76 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #ff69b4;
+}
+
+.screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.screen.active {
+    display: flex;
+}
+
+#waiting-room, #level-selection, #treasure-screen {
+    background-color: #ff69b4;
+    color: white;
+}
+
+#levels {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.level {
+    width: 150px;
+    height: 100px;
+    margin: 10px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: #ff69b4;
+    border-radius: 5px;
+    border-color: white;
+    transition: background-color 0.3s;
+}
+
+.level:hover {
+    background-color: #ff1493;
+}
+
+#treasure {
+    width: 600px;
+    height: 600px;
+}
+
+canvas {
+    border: 1px solid black;
+}
+
+#start-game, #open-treasure {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #ff69b4;
+    border-radius: 5px;
+    border-color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#start-game:hover, #open-treasure:hover {
+    background-color: #ff1493;
+}
