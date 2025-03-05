@@ -44,7 +44,6 @@ document.getElementById('open-treasure').addEventListener('click', () => {
   if (code === '2517') {
     screens.levelSelection.classList.remove('active');
     screens.treasureScreen.classList.add('active');
-    console.log(playerFace)
     document.getElementById('treasure').style.background = `url(${playerFace})`;
   }
 });
@@ -53,9 +52,24 @@ document.querySelectorAll('.level').forEach(level => {
   level.addEventListener('click', () => {
     const levelName = level.getAttribute('data-name');
     socket.emit('levelSelected', levelName);
-    level.style.background = `url(${playerFace})`;
   });
 });
+
+socket.on('levelSelected', (players) => {
+  players.forEach(({ name, level }) => {
+    document.querySelector(`[data-player=${name}]`)?.remove();
+
+    if (level) {
+      const face = document.createElement("div");
+      face.setAttribute('data-player', name);
+      face.style.height = "50px";
+      face.style.width = "50px";
+      face.style.backgroundImage = `url(${playerFaces[name]})`;
+      face.style.backgroundSize = "100% 100%";
+      document.querySelector(`[data-number="${level}"]`).appendChild(face);
+    }
+  });
+})
 
 socket.on('startLevel', (level) => {
   screens.levelSelection.classList.remove('active');

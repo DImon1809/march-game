@@ -38,12 +38,19 @@ io.on('connection', (socket) => {
     if (!levels[levelName]) return;
 
     players.find((({ name }) => name === playerName)).level = levels[levelName];
-    io.emit('levelSelected', levelName);
+    io.emit('levelSelected', players);
 
     if (players.every(player => player.level !== null) && players.every(({level}) => level === players[0].level)) {
       const selectedLevel = players[0].level;
       io.emit('startLevel', selectedLevel);
     }
+  });
+
+  socket.on('levelCompleted', () => {
+    players.forEach((player) => {
+      player.level = null;
+    });
+    io.emit('levelSelected', players);
   });
 
   socket.on('disconnect', () => {
