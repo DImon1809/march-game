@@ -48,14 +48,12 @@ io.on('connection', (socket) => {
 
   socket.on('levelCompleted', (levelName) => {
     players.find((({ name }) => name === playerName)).level = null;
+    io.emit('levelSelected', players);
 
     if (players.every(player => player.level === null)) {
       completedLevels.push(levelName);
+      io.emit('levelCompleted', completedLevels);
     }
-
-    console.log(players)
-
-    io.emit('levelCompleted');
   });
 
   socket.on('disconnect', () => {

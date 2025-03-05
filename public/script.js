@@ -93,6 +93,34 @@ socket.on('startLevel', (level) => {
   }
 });
 
+socket.on('levelCompleted', (completedLevels) => {
+  screens.level1.classList.remove('active');
+  screens.level2.classList.remove('active');
+  screens.level3.classList.remove('active');
+  screens.level4.classList.remove('active');
+
+  completedLevels.forEach((levelName) => {
+    let code;
+
+    switch (levelName) {
+      case 'FE лабиринт':
+        code = "2";
+        break;
+      case 'BE порядок':
+        code = "5";
+        break;
+      case 'QA преграда':
+        code = "1";
+        break;
+      case 'SA догонялки':
+        code = "7";
+        break;
+    }
+
+    document.querySelector(`[date-name=${levelName}]`).textContent = code;
+  });
+});
+
 function startLevel1() {
   const canvas = document.getElementById('maze');
   const ctx = canvas.getContext('2d');
