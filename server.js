@@ -11,13 +11,13 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static('public'));
 
 const players = [];
-const bots = [];
 const levels = {
   'FE лабиринт': 1,
   'BE порядок': 2,
   'QA преграда': 3,
   'SA догонялки': 4,
 };
+const completedLevels = [];
 
 io.on('connection', (socket) => {
   const playerName = socket.handshake.query.name;
@@ -46,11 +46,16 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('levelCompleted', () => {
-    players.forEach((player) => {
-      player.level = null;
-    });
-    io.emit('levelSelected', players);
+  socket.on('levelCompleted', (levelName) => {
+    players.find((({ name }) => name === playerName)).level = null;
+
+    if (players.every(player => player.level === null)) {
+      completedLevels.push(levelName);
+    }
+
+    console.log(players)
+
+    io.emit('levelCompleted');
   });
 
   socket.on('disconnect', () => {
