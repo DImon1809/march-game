@@ -11,7 +11,10 @@ const screens = {
 };
 
 const enemyFaces = {
-  enemy: 'images/enemies/enemy.png'
+  fe: ['images/enemies/fe/islamov.png', 'images/enemies/fe/klimov.png'],
+  be: ['images/enemies/be/kizhaev.png', 'images/enemies/be/kurtyakov.png', 'images/enemies/be/schepkin.png', 'images/enemies/be/zibert.png'],
+  qa: ['images/enemies/qa/erokhin.png', 'images/enemies/qa/rogozin.png', 'images/enemies/qa/vyaldin.png', 'images/enemies/qa/zaichko.png'],
+  sa: ['images/enemies/sa/eremeev.png', 'images/enemies/sa/kaluzhsky.png', 'images/enemies/sa/puzanov.png'],
 }
 
 const playerFaces = {
@@ -178,9 +181,9 @@ function startLevel4() {
   }
 
 // Функция для создания бота с тремя жизнями
-  function createBot() {
+  function createBot(i) {
     const img = new Image();
-    img.src = enemyFaces.enemy;
+    img.src = enemyFaces.sa[i];
 
     return {
       x: Math.random() * (canvas.width - 50),
@@ -197,8 +200,8 @@ function startLevel4() {
 // Создаем игроков и ботов
   players.push(createPlayer());
 
-  for (let i = 0; i < 2; i++) {
-    bots.push(createBot());
+  for (let i = 0; i < 3; i++) {
+    bots.push(createBot(i));
   }
 
 // Функция для проверки столкновения
